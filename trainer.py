@@ -109,7 +109,8 @@ def main(net_path):
             next_state_batch = torch.cat(next_state_batch).to(device)
 
             if i % 40 == 0:
-                target_net.load(q_net.state_dict()).to(device)
+                target_net.load_state_dict(q_net.state_dict())
+                target_net.to(device)
             # 大于2060时,开始采用两个网络
             if i > 2060:
                 current_prediction_batch = q_net(state_batch)
