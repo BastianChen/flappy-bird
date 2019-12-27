@@ -10,7 +10,7 @@ from nets import MyNet
 from torch.distributions import Categorical
 from tensorboardX import SummaryWriter
 
-'''AC模型实现'''
+'''AC模型实现（暂未实现）'''
 
 class Trainer:
     def __init__(self, net_path):
