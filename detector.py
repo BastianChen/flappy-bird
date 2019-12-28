@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 # torch.nn.Module.dump_patches=True
 from game.Game import Game
+from nets import MyNet
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--level", type=int, default=2, help="The game level (0: easy; 1: normal; 2: difficult")
@@ -29,11 +30,12 @@ def test():
     # 如果没有GPU的话把在GPU上训练的参数放在CPU上运行，cpu-->gpu 1:lambda storage, loc: storage.cuda(1)
     map_location = None if torch.cuda.is_available() else lambda storage, loc: storage
 
-    model_path = "models/flappy_bird.pth"
+    model_path = "models/net.pth"
 
-    model = torch.load(model_path, map_location=map_location)
+    net = MyNet()
+    net.load_state_dict(torch.load(model_path))
 
-    model.eval().to(device)
+    net.eval().to(device)
 
     game_state = Game(level=2, train=False, sound="off")
 
@@ -44,7 +46,7 @@ def test():
 
     while True:
         try:
-            prediction = model(state)[0]
+            prediction = net(state)[0]
             action = torch.argmax(prediction).item()
 
             next_image, reward, terminal = game_state.step(action)
