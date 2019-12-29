@@ -33,7 +33,8 @@ class MyNet(nn.Module):
         return output
 
     def add_histogram(self, writer, epoch):
-        writer.add_histogram("weight", self.output.weight, epoch)
+        writer.add_histogram("weight/value", self.value.weight, epoch)
+        writer.add_histogram("weight/advantage", self.advantage.weight, epoch)
 
 
 if __name__ == '__main__':
