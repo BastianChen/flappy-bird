@@ -18,10 +18,10 @@ class Trainer:
         self.game = Game(level=2, train=True)
         self.image_size = 84
         self.epochs = 4000000
-        self.start_epsilon = 0.08424
+        self.start_epsilon = 0.1
         self.end_epsilon = 0.0001
         self.memory_size = 20000
-        self.batch_size = 64
+        self.batch_size = 128
         self.gamma = 0.99
         self.observe = 2000
         self.q_net = MyNet().to(self.device)
@@ -34,6 +34,9 @@ class Trainer:
         if os.path.exists(net_path):
             self.q_net.load_state_dict(torch.load(net_path))
             self.target_net.load_state_dict(torch.load(net_path))
+        else:
+            self.init_weight(self.q_net)
+            self.init_weight(self.target_net)
 
     def init_weight(self, model):
         if isinstance(model, nn.Linear) or isinstance(model, nn.Conv2d):
@@ -120,5 +123,5 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    trainer = Trainer("models/net.pth")
+    trainer = Trainer("models/net_40.pth")
     trainer.train()
