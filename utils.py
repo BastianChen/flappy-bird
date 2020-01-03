@@ -15,10 +15,6 @@ def push_and_pull(optimizer, local_net, global_net, terminal, next_state, buffer
         next_state_value = reward + gamma * next_state_value
         buffer_v_target.append(next_state_value)
     buffer_v_target.reverse()
-    # eps = np.finfo(np.float32).eps.item()
-    # buffer_v_target = torch.tensor(buffer_v_target, dtype=torch.float32)
-    # # 根据期望和方差做标准归一化
-    # buffer_v_target = (buffer_v_target-buffer_v_target.mean())/(buffer_v_target.std()+eps)
     buffer_state = torch.stack(buffer_state)
     buffer_state = buffer_state.reshape(*buffer_state.shape[-4:])
     buffer_action = torch.stack(buffer_action).to(device)

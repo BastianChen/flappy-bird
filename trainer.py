@@ -30,8 +30,6 @@ class Trainer(mp.Process):
         self.global_ep, self.global_ep_r, self.res_queue = global_ep, global_ep_r, res_queue
         self.global_net, self.optimizer = global_net, optimizer
         self.local_net = MyNet()
-        # self.buffer_memory = deque(maxlen=self.memory_size)
-        # self.writer = SummaryWriter()
         if os.path.exists(net_path):
             self.local_net.load_state_dict(torch.load(net_path))
         else:
@@ -86,70 +84,6 @@ class Trainer(mp.Process):
                 state = next_state
             torch.save(self.global_net.state_dict(), self.net_path)
         self.res_queue.put(None)
-        # # 初始的随机动作构建样本池
-        # if i <= self.observe:
-        #     action = np.random.choice([0, 1], 1, p=[0.9, 0.1])[0]
-        # else:
-        #     prediction = self.q_net(state)[0]
-        #     # 更新探索值
-        #     epsilon = self.end_epsilon + ((self.epochs - i) * (self.start_epsilon - self.end_epsilon) / self.epochs)
-        #
-        #     if random.random() <= epsilon:
-        #         # 探索
-        #         action = random.randint(0, 1)
-        #         print("-------- random action -------- ", action)
-        #     else:
-        #         # 开发
-        #         action = torch.argmax(prediction).item()
-        # next_image, reward, terminal = self.game.step(action)
-        # next_image = self.edit_image(next_image[:self.game.screen_width, :int(self.game.base_y)], self.image_size,
-        #                              self.image_size)
-        # next_image = torch.from_numpy(next_image).to(self.device)
-        # # 插入新的一张照片，组成新的四张照片组合
-        # next_state = torch.cat((state[0, 1:, :, :], next_image)).unsqueeze(0)
-        # self.buffer_memory.append([state, action, reward, next_state, terminal])
-        # state = next_state
-        #
-        # # 从样本池中取样本训练
-        # if i > self.observe:
-        #     batch = random.sample(self.buffer_memory, min(len(self.buffer_memory), self.batch_size))
-        #     state_batch, action_batch, reward_batch, next_state_batch, terminal_batch = zip(*batch)
-        #
-        #     state_batch = torch.cat(state_batch).to(self.device)
-        #     action_batch = torch.Tensor([[1, 0] if action == 0 else [0, 1] for action in action_batch]).to(
-        #         self.device)
-        #     reward_batch = torch.Tensor(reward_batch).unsqueeze(1).to(self.device)
-        #     next_state_batch = torch.cat(next_state_batch).to(self.device)
-        #
-        #     if i % 40 == 0:
-        #         self.target_net.load_state_dict(self.q_net.state_dict())
-        #
-        #     # DDQN使用当前网络先得到动作
-        #     current_prediction_batch = self.q_net(state_batch)
-        #     current_action_batch = torch.argmax(self.q_net(next_state_batch), dim=-1)
-        #     # 使用target网络得到估计Q值
-        #     next_prediction_batch = self.target_net(next_state_batch).gather(1, current_action_batch.unsqueeze(1))
-        #
-        #     y_batch = torch.cat(
-        #         [reward if terminal else reward + self.gamma * next_prediction for reward, terminal, next_prediction
-        #          in zip(reward_batch, terminal_batch, next_prediction_batch)])
-        #     q_value = torch.sum(current_prediction_batch * action_batch, dim=1)
-        #
-        #     loss = self.loss(q_value, y_batch)
-        #     self.optimizer.zero_grad()
-        #     loss.backward()
-        #     self.optimizer.step()
-        #
-        #     print("Iteration: {}/{}, Action: {}, Loss: {}, Epsilon {}, Reward: {}, Q-value: {}".format(
-        #         i + 2000, self.epochs, action, loss, epsilon, reward, torch.max(prediction)))
-        #
-        #     if (i - 1) % 1000 == 0:
-        #         self.writer.add_scalar("1/loss", loss, i)
-        #         self.writer.add_scalar("1/Q-value", torch.max(prediction), i)
-        #         self.writer.add_scalar("1/epsilon", epsilon, i)
-        #         self.writer.add_scalar("1/reward", reward, i)
-        #         self.q_net.add_histogram(self.writer, i)
-        #         torch.save(self.q_net.state_dict(), self.net_path)
 
 
 if __name__ == '__main__':

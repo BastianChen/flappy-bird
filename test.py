@@ -1,13 +1,10 @@
 import cv2
 import random
 import numpy as np
-import torch
 import torch.nn as nn
-from collections import deque
 import os
 from game.Game import Game
 from nets import MyNet
-from torch.distributions import Categorical
 from tensorboardX import SummaryWriter
 from config import args
 from utils import *
@@ -48,28 +45,6 @@ class Trainer:
         if isinstance(net, nn.Conv2d) or isinstance(net, nn.Linear):
             nn.init.normal_(net.weight, mean=0., std=0.1)
             nn.init.constant_(net.bias, 0)
-
-    # def select_action(self, state):
-    #     action_prob, action_value = self.net(state)
-    #     action_distribution = Categorical(action_prob)
-    #     action = action_distribution.sample()
-    #     # self.net.actions.append([action_distribution.log_prob(action), action_value])
-    #     # return action.item()
-    #     # print(action.item(), action_distribution.log_prob(action).item(), action_value.item())
-    #     return action.item(), action_distribution.log_prob(action).item(), action_value.item()
-    #
-    # def get_v_value(self):
-    #     R = 0
-    #     v_values = []
-    #
-    #     for reward in self.net.rewards[::-1]:
-    #         R = reward + self.gamma * R
-    #         v_values.insert(0, R)
-    #
-    #     v_values = torch.Tensor(v_values)
-    #     # 根据期望和方差做标准归一化
-    #     v_value = (v_values - v_values.mean()) / (v_values.std() + self.eps)
-    #     return v_value
 
     def train(self):
         image, reward, terminal = self.game.step(0)
@@ -118,56 +93,11 @@ class Trainer:
                     torch.save(self.net.state_dict(), self.net_path)
                 state = next_state
 
-            # actor_loss = []
-            # critic_loss = []
-            # actor_loss.append(-log_prob_batch * value_batch)
-            # next_action, next_q = self.net(next_state_batch)
-            # next_q = reward_batch.reshape((-1, 1)) + self.gamma * next_q
-            # critic_loss.append(self.loss(value_batch.reshape((-1, 1)), next_q))
-            # loss = torch.stack(actor_loss).sum() + torch.stack(critic_loss).sum()
-            # self.optimizer.zero_grad()
-            # loss.backward()
-            # self.optimizer.step()
-
             if i % 10 == 0:
                 print(f"epoch:{i},loss:{loss}")
                 self.writer.add_scalar("loss/loss", loss, i)
                 self.net.add_histogram(self.writer, i)
                 torch.save(self.net.state_dict(), self.net_path)
-
-            # for _ in range(3000):
-            #     action = self.select_action(state)
-            #     # print(action)
-            #     next_state, reward, terminal = self.game.step(action)
-            #     self.net.rewards.append(reward)
-            #     next_state = self.edit_image(next_state[:self.game.screen_width, :int(self.game.base_y)],
-            #                                  self.image_size, self.image_size)
-            #     next_state = torch.from_numpy(next_state).to(self.device)
-            #     next_state = torch.cat([state[0, 1:, :, :], next_state]).unsqueeze(0)
-            #     state = next_state
-            #     # if terminal:
-            #     #     print(reward)
-            #     #     break
-            # v_value = self.get_v_value()
-            # actor_loss = []
-            # critic_loss = []
-            # for (log_prob, value), R in zip(self.net.actions, v_value.to(self.device)):
-            #     # 求得动作优势
-            #     advantage = value.item() - R
-            #     actor_loss.append(log_prob * advantage)
-            #     critic_loss.append(self.loss(value, R))
-            # loss = torch.stack(actor_loss).sum() + torch.stack(critic_loss).sum()
-            # self.optimizer.zero_grad()
-            # loss.backward()
-            # self.optimizer.step()
-            #
-            # self.net.actions = []
-            # self.net.rewards = []
-            #
-            # print(f"epoch:{i},loss:{loss}")
-            # self.writer.add_scalar("loss/loss", loss, i)
-            # self.net.add_histogram(self.writer, i)
-            # torch.save(self.net.state_dict(), self.net_path)
 
 
 if __name__ == '__main__':
