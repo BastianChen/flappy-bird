@@ -2,16 +2,17 @@ import torch
 import cv2
 import numpy as np
 from game.Game import Game
-from nets import MyNet
+from nets import Actor
+from config import args
 
 
 class Detector:
     def __init__(self, net_path):
-        self.image_size = 84
+        self.image_size = args.image_size
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # 如果没有GPU的话把在GPU上训练的参数放在CPU上运行，cpu-->gpu 1:lambda storage, loc: storage.cuda(1)
         self.map_location = None if torch.cuda.is_available() else lambda storage, loc: storage
-        self.net = MyNet().to(self.device)
+        self.net = Actor().to(self.device)
         self.net.load_state_dict(torch.load(net_path, map_location=self.map_location))
         self.net.eval()
         self.game_state = Game(level=2, train=False, sound="off")
@@ -44,5 +45,5 @@ class Detector:
 
 
 if __name__ == "__main__":
-    detector = Detector("models/net_ac.pt")
+    detector = Detector("models/actor.pth")
     detector.detect()
