@@ -5,10 +5,9 @@ import os
 from game.Game import Game
 from nets import MyNet
 from config import args
-import torch.multiprocessing as mp
 from utils import *
 
-'''A3C模型（CPU太小暂未实现）'''
+'''DDPG模型'''
 
 
 class Trainer(mp.Process):
@@ -153,16 +152,4 @@ class Trainer(mp.Process):
 
 
 if __name__ == '__main__':
-    net_path = "models/net_40.pth"
-    global_net = MyNet()
-    if os.path.exists(net_path):
-        global_net.load_state_dict(torch.load(net_path))
-    optimizer = torch.optim.Adam(global_net.parameters())
-    # 在共享内存中放入全局次数以及全局价值总和
-    global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
-    # 构建多个进程同时训练
-    workers = [Trainer(global_net, optimizer, global_ep, global_ep_r, res_queue, net_path, i) for i in
-               range(mp.cpu_count())]
-    [w.run() for w in workers]
-    # trainer = Trainer("models/net_40.pth")
-    # trainer.train()
+    pass

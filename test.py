@@ -118,17 +118,6 @@ class Trainer:
                     torch.save(self.net.state_dict(), self.net_path)
                 state = next_state
 
-            # actor_loss = []
-            # critic_loss = []
-            # actor_loss.append(-log_prob_batch * value_batch)
-            # next_action, next_q = self.net(next_state_batch)
-            # next_q = reward_batch.reshape((-1, 1)) + self.gamma * next_q
-            # critic_loss.append(self.loss(value_batch.reshape((-1, 1)), next_q))
-            # loss = torch.stack(actor_loss).sum() + torch.stack(critic_loss).sum()
-            # self.optimizer.zero_grad()
-            # loss.backward()
-            # self.optimizer.step()
-
             if i % 10 == 0:
                 print(f"epoch:{i},loss:{loss}")
                 self.writer.add_scalar("loss/loss", loss, i)
