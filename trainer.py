@@ -35,8 +35,8 @@ class Trainer:
             self.q_net.load_state_dict(torch.load(net_path))
             self.target_net.load_state_dict(torch.load(net_path))
         else:
-            self.init_weight(self.q_net)
-            self.init_weight(self.target_net)
+            self.q_net.apply(self.init_weight)
+            self.target_net.load_state_dict(self.q_net.state_dict())
 
     def init_weight(self, model):
         if isinstance(model, nn.Linear) or isinstance(model, nn.Conv2d):
