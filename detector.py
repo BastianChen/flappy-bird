@@ -28,6 +28,7 @@ class Detector:
         image = torch.from_numpy(image).to(self.device)
         state = torch.cat([image for _ in range(4)]).unsqueeze(0)
 
+        checkpoint = 0
         while True:
             try:
                 prediction = self.net(state)[0]
@@ -40,6 +41,11 @@ class Detector:
                 next_state = torch.cat((state[0, 1:, :, :], next_image))[None, :, :, :]
 
                 state = next_state
+                if reward == 1:
+                    checkpoint += 1
+                if terminal:
+                    print(f"飞行到第{checkpoint}关")
+                    checkpoint = 0
             except KeyboardInterrupt:
                 print("Quit")
 
