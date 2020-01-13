@@ -20,28 +20,28 @@ class Trainer:
         self.epochs = 4000000
         self.start_epsilon = 0.1
         self.end_epsilon = 0.0001
-        self.memory_size = 20000
-        self.batch_size = 128
+        self.memory_size = 15000
+        self.batch_size = 32
         self.gamma = 0.99
         self.observe = 2000
         self.q_net = MyNet().to(self.device)
         self.target_net = MyNet().to(self.device)
         self.net_path = net_path
         self.loss = nn.MSELoss()
-        self.optimizer = torch.optim.Adam(self.q_net.parameters())
+        self.optimizer = torch.optim.Adam(self.q_net.parameters(), weight_decay=0.0005)
         self.buffer_memory = deque(maxlen=self.memory_size)
         self.writer = SummaryWriter()
         if os.path.exists(net_path):
             self.q_net.load_state_dict(torch.load(net_path))
             self.target_net.load_state_dict(torch.load(net_path))
-        else:
-            self.q_net.apply(self.init_weight)
-            self.target_net.load_state_dict(self.q_net.state_dict())
+        # else:
+        #     self.q_net.apply(self.init_weight)
+        #     self.target_net.load_state_dict(self.q_net.state_dict())
 
     def init_weight(self, model):
         if isinstance(model, nn.Linear) or isinstance(model, nn.Conv2d):
-            nn.init.normal_(model.weight)
-            nn.init.constant_(model.bias, 0)
+            nn.init.normal_(model.weight, mean=0., std=0.1)
+            nn.init.constant_(model.bias, 0.)
 
     def edit_image(self, image, width, height):
         image = cv2.cvtColor(cv2.resize(image, (width, height)), cv2.COLOR_BGR2GRAY)
@@ -91,7 +91,7 @@ class Trainer:
                 reward_batch = torch.Tensor(reward_batch).unsqueeze(1).to(self.device)
                 next_state_batch = torch.cat(next_state_batch).to(self.device)
 
-                if i % 40 == 0:
+                if i % 30 == 0:
                     self.target_net.load_state_dict(self.q_net.state_dict())
 
                 # DDQN使用当前网络先得到动作
@@ -123,5 +123,5 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    trainer = Trainer("models/net_40.pth")
+    trainer = Trainer("models/net_30.pth")
     trainer.train()

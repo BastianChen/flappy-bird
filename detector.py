@@ -51,5 +51,5 @@ class Detector:
 
 
 if __name__ == "__main__":
-    detector = Detector("models/net_40.pth")
+    detector = Detector("models/net_30.pth")
     detector.detect()
